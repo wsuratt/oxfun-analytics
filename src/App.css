@@ -1,38 +1,329 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #e0e0e0;
+  background-color: #0d0d0d;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: left;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: #121212;
+  padding: 1rem 2rem;
+  color: white;
+  border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  height: 60px;
+}
+
+.App-header h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-right: 2rem;
+  margin-bottom: 0;
+}
+
+.search-container {
+  max-width: 300px;
+  width: 100%;
+}
+
+.coin-select {
+  text-align: left;
+  font-size: 0.9rem;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+}
+
+/* Override react-select styles for dark theme */
+.coin-select .css-13cymwt-control {
+  background-color: #1a1a1a;
+  border-color: #333;
+  box-shadow: none;
+}
+
+.coin-select .css-t3ipsp-control {
+  background-color: #1a1a1a;
+  border-color: #444;
+  box-shadow: none;
+}
+
+.coin-select .css-1dimb5e-singleValue {
+  color: #fff;
+}
+
+.coin-select .css-166bipr-Input {
+  color: #fff;
+}
+
+.coin-select .css-1nmdiq5-menu {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.coin-select .css-1n7v3ny-option {
+  background-color: #242424;
+  color: #fff;
+}
+
+.coin-select .css-1n7v3ny-option:hover {
+  background-color: #333333;
+}
+
+/* Add styles for the selected option */
+.coin-select .css-tr4s17-option {
+  background-color: #3a3a3a !important;
+  color: #fff;
+}
+
+.coin-select .css-tr4s17-option:hover {
+  background-color: #404040 !important;
+}
+
+.coin-select .css-1gtu0rj-indicatorContainer {
+  color: #666;
+}
+
+.coin-select input {
+  color: #fff !important;
+}
+
+.App-main {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  background-color: #0d0d0d;
+}
+
+.chart-container {
+  background-color: #121212;
+  border-radius: 4px;
+  padding: 1.5rem;
+  border: 1px solid #2a2a2a;
+  margin-bottom: 1rem;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.chart-container h2 {
+  color: #fff;
+  margin-bottom: 0;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.coin-symbol {
+  margin-right: 10px;
+}
+
+.change-indicator {
+  font-size: 0.9rem;
+  font-weight: normal;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+
+.positive {
+  color: #00c087;
+}
+
+.negative {
+  color: #ff5353;
+}
+
+.time-range {
+  color: #999;
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Timeframe controls */
+.timeframe-controls {
+  display: flex;
+  align-items: center;
+}
+
+.timeframe-btn {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: #999;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.timeframe-btn:hover {
+  background-color: #252525;
+  color: #fff;
+}
+
+.timeframe-btn.active {
+  background-color: #00c087;
+  color: #0d0d0d;
+  border-color: #00c087;
+  font-weight: 500;
+}
+
+/* Chart stats */
+.chart-stats {
+  display: flex;
+  margin-bottom: 1.5rem;
+  padding: 10px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.stat-item {
+  margin-right: 2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.custom-tooltip {
+  background-color: rgba(26, 26, 26, 0.9);
+  border: 1px solid #333;
+  padding: 10px;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.tooltip-time {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #ccc;
+  font-size: 0.8rem;
+}
+
+.tooltip-value {
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.instructions {
+  background-color: #121212;
+  border-radius: 4px;
+  padding: 2rem;
+  border: 1px solid #2a2a2a;
+  text-align: center;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+
+.instructions h2 {
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.instructions p {
+  color: #999;
+  font-size: 1rem;
+}
+
+.loading {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  height: 200px;
+  font-size: 1rem;
+  color: #999;
 }
 
-.App-link {
-  color: #61dafb;
+.error-message {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  border: 1px solid rgba(220, 53, 69, 0.3);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.App-footer {
+  background-color: #121212;
+  color: #666;
+  padding: 0.8rem;
+  font-size: 0.8rem;
+  text-align: center;
+  border-top: 1px solid #2a2a2a;
+}
+
+/* Chart customizations */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #2a2a2a;
+}
+
+.recharts-text {
+  fill: #999;
+  font-size: 0.8rem;
+}
+
+.recharts-tooltip-cursor {
+  stroke: #666;
+}
+
+@media (max-width: 768px) {
+  .App-header {
+    padding: 0.8rem;
+    flex-direction: column;
+    height: auto;
+    align-items: flex-start;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .App-header h1 {
+    margin-bottom: 0.8rem;
+    margin-right: 0;
+  }
+  
+  .search-container {
+    max-width: 100%;
+    margin-bottom: 0.8rem;
+  }
+  
+  .App-main {
+    padding: 0.8rem;
+  }
+  
+  .chart-container {
+    padding: 1rem;
   }
 }
