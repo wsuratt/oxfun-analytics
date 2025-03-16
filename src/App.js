@@ -137,7 +137,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>OxFun OI</h1>
+        <h1>OX.FUN OI</h1>
         <div className="search-container">
           <Select
             className="coin-select"
