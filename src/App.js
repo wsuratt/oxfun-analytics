@@ -17,10 +17,12 @@ function App() {
     const fetchCoins = async () => {
       try {
         const response = await axios.get('https://oxfun-data-server-production.up.railway.app/api/coins');
-        const options = response.data.symbols.map(symbol => ({
-          value: symbol,
-          label: symbol
-        }));
+        const options = response.data.symbols
+          .map(symbol => ({
+            value: symbol,
+            label: symbol
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label)); // Sort alphabetically
         
         // Set BTC as default if available
         const btcOption = options.find(option => option.value === 'BTC-USD-SWAP-LIN');
