@@ -235,6 +235,8 @@ function App() {
                   <YAxis 
                     tickFormatter={(value) => value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' })}
                     width={70}
+                    domain={['dataMin', 'dataMax']}
+                    allowDataOverflow={false}
                   />
                   <Tooltip content={<OpenInterestTooltip />} />
                   <Area 
@@ -244,6 +246,7 @@ function App() {
                     fill="#00c087" 
                     fillOpacity={0.2} 
                     activeDot={{ r: 6, stroke: '#00c087', strokeWidth: 2, fill: '#121212' }}
+                    baseValue="dataMin"
                   />
                 </AreaChart>
               </ResponsiveContainer>
