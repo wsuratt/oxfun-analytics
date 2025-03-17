@@ -1,11 +1,15 @@
-# Cryptocurrency Open Interest Tracker
+# Cryptocurrency Analytics Dashboard
 
-A React-based web application that visualizes hourly open interest data for various cryptocurrencies. The application fetches data from the OxFun Data Server API and displays it in an interactive chart.
+A React-based web application that visualizes comprehensive analytics for various cryptocurrencies. The application fetches data from the OxFun Data Server API and displays it in multiple interactive charts, providing insights into open interest, price movements, and funding rates.
 
 ## Features
 
 - Search and select from 290+ cryptocurrency trading pairs
-- Interactive area chart showing hourly open interest data
+- Multiple interactive charts showing:
+  - Open interest data
+  - Market price and index price comparison
+  - Funding rate analysis
+- 5-minute interval data for real-time monitoring
 - Responsive design that works on desktop and mobile devices
 - Detailed tooltips with precise timestamp and value information
 
@@ -14,7 +18,7 @@ A React-based web application that visualizes hourly open interest data for vari
 The application uses the following API endpoints:
 
 - `https://oxfun-data-server-production.up.railway.app/api/coins` - Retrieves the list of available cryptocurrency symbols
-- `https://oxfun-data-server-production.up.railway.app/api/coins/:coin` - Retrieves hourly open interest data for a specific cryptocurrency
+- `https://oxfun-data-server-production.up.railway.app/api/coins/:coin` - Retrieves 5-minute interval analytics data (open interest, market price, index price, and funding rate) for a specific cryptocurrency
 
 ## Getting Started
 

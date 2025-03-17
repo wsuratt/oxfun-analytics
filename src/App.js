@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import './App.css';
 
 function App() {
@@ -72,7 +72,7 @@ function App() {
     return data.data.filter(item => new Date(item.timestamp) >= cutoffTime);
   };
 
-  // Format data for the chart
+  // Format data for the charts
   const formatChartData = (data) => {
     if (!data || !data.data) return [];
     
@@ -80,26 +80,32 @@ function App() {
     
     return filteredData.map(item => ({
       time: new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      value: item.value,
+      openInterest: item.openInterest,
+      marketPrice: parseFloat(item.marketPrice),
+      indexPrice: parseFloat(item.indexPrice),
+      fundingRate: parseFloat(item.fundingRate),
       fullTimestamp: item.timestamp,
       date: new Date(item.timestamp).toLocaleDateString()
     }));
   };
 
   // Format the tooltip value
-  const formatTooltipValue = (value) => {
+  const formatTooltipValue = (value, type = 'number') => {
+    if (type === 'percent') {
+      return (value * 100).toFixed(4) + '%';
+    }
     return new Intl.NumberFormat('en-US').format(value);
   };
 
-  // Calculate percentage change
+  // Calculate percentage change for open interest
   const calculateChange = () => {
     if (!coinData || !coinData.data || coinData.data.length < 2) return { value: 0, isPositive: true };
     
     const filteredData = getFilteredData(coinData);
     if (filteredData.length < 2) return { value: 0, isPositive: true };
     
-    const firstValue = filteredData[0].value;
-    const lastValue = filteredData[filteredData.length - 1].value;
+    const firstValue = filteredData[0].openInterest;
+    const lastValue = filteredData[filteredData.length - 1].openInterest;
     const change = ((lastValue - firstValue) / firstValue) * 100;
     
     return {
@@ -108,14 +114,43 @@ function App() {
     };
   };
 
-  // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }) => {
+  // Custom tooltip component for Open Interest
+  const OpenInterestTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
         <div className="custom-tooltip">
           <p className="tooltip-time">{new Date(data.fullTimestamp).toLocaleString()}</p>
-          <p className="tooltip-value">Open Interest: {formatTooltipValue(data.value)}</p>
+          <p className="tooltip-value">Open Interest: {formatTooltipValue(data.openInterest)}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip component for Prices
+  const PriceTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="custom-tooltip">
+          <p className="tooltip-time">{new Date(data.fullTimestamp).toLocaleString()}</p>
+          <p className="tooltip-value">Market Price: ${data.marketPrice}</p>
+          <p className="tooltip-value">Index Price: ${data.indexPrice}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip component for Funding Rate
+  const FundingRateTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="custom-tooltip">
+          <p className="tooltip-time">{new Date(data.fullTimestamp).toLocaleString()}</p>
+          <p className="tooltip-value">Funding Rate: {formatTooltipValue(data.fundingRate, 'percent')}</p>
         </div>
       );
     }
@@ -137,7 +172,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>OX.FUN OI</h1>
+        <h1>OX.FUN Analytics</h1>
         <div className="search-container">
           <Select
             className="coin-select"
@@ -157,66 +192,163 @@ function App() {
         {loading && <div className="loading">Loading data...</div>}
         
         {!loading && selectedCoin && coinData && (
-          <div className="chart-container">
-            <div className="chart-header">
-              <h2>
-                <span className="coin-symbol">{selectedCoin.label}</span>
-                <span className={`change-indicator ${change.isPositive ? 'positive' : 'negative'}`}>
-                  {change.isPositive ? '↑' : '↓'} {change.value}%
-                </span>
-              </h2>
-              <div className="timeframe-controls">
-                <TimeframeButton value="3h" label="3H" currentTimeframe={timeframe} onClick={setTimeframe} />
-                <TimeframeButton value="6h" label="6H" currentTimeframe={timeframe} onClick={setTimeframe} />
-                <TimeframeButton value="12h" label="12H" currentTimeframe={timeframe} onClick={setTimeframe} />
-                <TimeframeButton value="all" label="ALL" currentTimeframe={timeframe} onClick={setTimeframe} />
+          <div>
+            {/* Open Interest Chart */}
+            <div className="chart-container">
+              <div className="chart-header">
+                <h2>
+                  <span className="coin-symbol">{selectedCoin.label} - Open Interest</span>
+                  <span className={`change-indicator ${change.isPositive ? 'positive' : 'negative'}`}>
+                    {change.isPositive ? '↑' : '↓'} {change.value}%
+                  </span>
+                </h2>
+                <div className="timeframe-controls">
+                  <TimeframeButton value="3h" label="3H" currentTimeframe={timeframe} onClick={setTimeframe} />
+                  <TimeframeButton value="6h" label="6H" currentTimeframe={timeframe} onClick={setTimeframe} />
+                  <TimeframeButton value="12h" label="12H" currentTimeframe={timeframe} onClick={setTimeframe} />
+                  <TimeframeButton value="all" label="ALL" currentTimeframe={timeframe} onClick={setTimeframe} />
+                </div>
               </div>
+              
+              <div className="chart-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Latest OI</span>
+                  <span className="stat-value">
+                    {coinData.data.length > 0 ? formatTooltipValue(coinData.data[coinData.data.length - 1].openInterest) : 'N/A'}
+                  </span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Change</span>
+                  <span className={`stat-value ${change.isPositive ? 'positive' : 'negative'}`}>
+                    {change.isPositive ? '+' : '-'}{change.value}%
+                  </span>
+                </div>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart
+                  data={formatChartData(coinData)}
+                  margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis 
+                    tickFormatter={(value) => value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' })}
+                    width={70}
+                  />
+                  <Tooltip content={<OpenInterestTooltip />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="openInterest" 
+                    stroke="#00c087" 
+                    fill="#00c087" 
+                    fillOpacity={0.2} 
+                    activeDot={{ r: 6, stroke: '#00c087', strokeWidth: 2, fill: '#121212' }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            
-            <div className="chart-stats">
-              <div className="stat-item">
-                <span className="stat-label">Latest OI</span>
-                <span className="stat-value">
-                  {coinData.data.length > 0 ? formatTooltipValue(coinData.data[coinData.data.length - 1].value) : 'N/A'}
-                </span>
+
+            {/* Market Price and Index Price Chart */}
+            <div className="chart-container">
+              <div className="chart-header">
+                <h2>
+                  <span className="coin-symbol">{selectedCoin.label} - Price</span>
+                </h2>
               </div>
-              <div className="stat-item">
-                <span className="stat-label">24h Change</span>
-                <span className={`stat-value ${change.isPositive ? 'positive' : 'negative'}`}>
-                  {change.isPositive ? '+' : '-'}{change.value}%
-                </span>
+              
+              <div className="chart-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Market Price</span>
+                  <span className="stat-value">
+                    {coinData.data.length > 0 ? `$${coinData.data[coinData.data.length - 1].marketPrice}` : 'N/A'}
+                  </span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Index Price</span>
+                  <span className="stat-value">
+                    {coinData.data.length > 0 ? `$${coinData.data[coinData.data.length - 1].indexPrice}` : 'N/A'}
+                  </span>
+                </div>
               </div>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  data={formatChartData(coinData)}
+                  margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis 
+                    tickFormatter={(value) => `$${value}`}
+                    width={70}
+                    domain={['dataMin', 'dataMax']}
+                  />
+                  <Tooltip content={<PriceTooltip />} />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="marketPrice" 
+                    stroke="#8884d8" 
+                    name="Market Price"
+                    activeDot={{ r: 6, stroke: '#8884d8', strokeWidth: 2, fill: '#121212' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="indexPrice" 
+                    stroke="#82ca9d" 
+                    name="Index Price"
+                    activeDot={{ r: 6, stroke: '#82ca9d', strokeWidth: 2, fill: '#121212' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-            
-            <ResponsiveContainer width="100%" height={400}>
-              <AreaChart
-                data={formatChartData(coinData)}
-                margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis 
-                  tickFormatter={(value) => value.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short' })}
-                  width={70}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#00c087" 
-                  fill="#00c087" 
-                  fillOpacity={0.2} 
-                  activeDot={{ r: 6, stroke: '#00c087', strokeWidth: 2, fill: '#121212' }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+
+            {/* Funding Rate Chart */}
+            <div className="chart-container">
+              <div className="chart-header">
+                <h2>
+                  <span className="coin-symbol">{selectedCoin.label} - Funding Rate</span>
+                </h2>
+              </div>
+              
+              <div className="chart-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Current Funding Rate</span>
+                  <span className={`stat-value ${parseFloat(coinData.data[coinData.data.length - 1].fundingRate) >= 0 ? 'positive' : 'negative'}`}>
+                    {coinData.data.length > 0 ? formatTooltipValue(parseFloat(coinData.data[coinData.data.length - 1].fundingRate), 'percent') : 'N/A'}
+                  </span>
+                </div>
+              </div>
+              
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  data={formatChartData(coinData)}
+                  margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis 
+                    tickFormatter={(value) => `${(value * 100).toFixed(4)}%`}
+                    width={80}
+                  />
+                  <Tooltip content={<FundingRateTooltip />} />
+                  <Line 
+                    type="monotone" 
+                    dataKey="fundingRate" 
+                    stroke="#ff7300" 
+                    activeDot={{ r: 6, stroke: '#ff7300', strokeWidth: 2, fill: '#121212' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
 
         {!selectedCoin && (
           <div className="instructions">
             <h2>OX.FUN Open Interest Tracker</h2>
-            <p>Select a coin from the dropdown above to view its hourly open interest data.</p>
+            <p>Select a coin from the dropdown above to view its 5-minute interval data.</p>
           </div>
         )}
       </main>
