@@ -347,7 +347,7 @@ function App() {
 
         {!selectedCoin && (
           <div className="instructions">
-            <h2>OX.FUN Open Interest Tracker</h2>
+            <h2>OX.FUN Analytics Tracker</h2>
             <p>Select a coin from the dropdown above to view its 5-minute interval data.</p>
           </div>
         )}
