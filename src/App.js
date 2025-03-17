@@ -296,14 +296,14 @@ function App() {
                     dataKey="marketPrice" 
                     stroke="#8884d8" 
                     name="Market Price"
-                    activeDot={{ r: 6, stroke: '#8884d8', strokeWidth: 2, fill: '#121212' }}
+                    dot={false}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="indexPrice" 
                     stroke="#82ca9d" 
                     name="Index Price"
-                    activeDot={{ r: 6, stroke: '#82ca9d', strokeWidth: 2, fill: '#121212' }}
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -342,7 +342,7 @@ function App() {
                     type="monotone" 
                     dataKey="fundingRate" 
                     stroke="#ff7300" 
-                    activeDot={{ r: 6, stroke: '#ff7300', strokeWidth: 2, fill: '#121212' }}
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
